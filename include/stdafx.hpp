@@ -14,3 +14,5 @@
 #include <algorithm>
 #include <math.h>
 #include <random>
+
+#include <memory>

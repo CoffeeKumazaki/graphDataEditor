@@ -1,15 +1,28 @@
 #include <stdafx.hpp>
 #include "imgui_helper.hpp"
+#include "struct.hpp"
+#include "menu_widget.hpp"
+#include "editor.hpp"
 
 
 int main(int argc, char const *argv[]) {
 
-	initImgui();
+	int w = 1280;
+	int h = 720;
+	std::string title = "Graph Data Editor";
+	initImgui(w, h, title);
+
+	GraphDataEditor editor;
+	editor.init();
+	NODE_PRT wn; 	// working node 
+	NODE_PRT fn; 	// focus node
 
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(89.0f/255.0, 88.0f/255.0, 87.0f/255.0, 1.00f);
+	ImVec4 node_color = ImVec4(230.0/255.0, 180.0/255.0f, 34.0f/255.0, 1.00f);
+	ImVec4 edge_color = ImVec4(255.0/255.0, 255.0/255.0f, 255.0f/255.0, 1.00f);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -26,40 +39,118 @@ int main(int argc, char const *argv[]) {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		// menu
+		static int state = 0;
+		static float node_size = 5.0;
+		bool chstate = false;
 		{
-			static float f = 0.0f;
-			static int counter = 0;
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoTitleBar;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+			window_flags |= ImGuiWindowFlags_NoBackground;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(h/4, 720), ImGuiCond_FirstUseEver);
 
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+			ImGui::Begin("menu", nullptr, window_flags);
+			ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
+			ImGui::Text("Configuration");
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			ImGui::SliderFloat("Node size", &node_size, 1.0f, 10.0f);
+			for (size_t i = 0; i < STATE_NUM; i++) {
+				chstate |= ImGui::RadioButton(state_char[i].c_str(), &state, i);
+			}
 
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
 
-		// 3. Show another simple window.
-		if (show_another_window)
+		// main
 		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
+			ImGuiIO &io = ImGui::GetIO();
+			if (chstate || io.MouseClicked[1])
+				wn = NULL;
+			ImVec2 mouse_pos = ImGui::GetMousePos();
+			fn = editor.getHoverNode(mouse_pos.x, mouse_pos.y, node_size);
+			ImGui::GetMouseDragDelta();
+			ImVec2 click_pos = io.MouseClickedPos[0];
+
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoTitleBar;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+			window_flags |= ImGuiWindowFlags_NoBackground;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			ImGui::SetNextWindowPos(ImVec2(h/4, 0), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(3.0*h/4, 720), ImGuiCond_FirstUseEver);
+
+			ImGui::Begin("main", nullptr, window_flags);
+			ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+			ImGui::Text("Node Num: %d", editor.numNode());
+
+
+			if (state == NOTHING) {
+			}
+			else {
+				if (io.MouseClicked[0] && mouse_pos.x > w/4 && mouse_pos.x < w && mouse_pos.y > 0 && mouse_pos.y < h) {
+
+					if (state == DELETE) {
+						editor.delNode(fn);
+					}
+					else if (state == ONLY_EDGE) {
+						if (wn && fn) {
+							wn->child.push_back(fn);
+							fn->child.push_back(wn);
+						}
+						else if (fn) {
+							wn = fn;
+						}
+					}
+					else {
+						if (wn && fn) {
+							wn->child.push_back(fn);
+							fn->child.push_back(wn);
+							wn = fn;
+						}
+						else if (fn) {
+							wn = fn;
+						}
+						else {
+							auto n = std::make_shared<Node>();
+							n->x = click_pos.x;
+							n->y = click_pos.y;
+							if (wn && state == NODE_W_EDGE) {
+								n->child.push_back(wn);
+								wn->child.push_back(n);
+							}
+							editor.addNode(n);
+							wn = n;
+						}
+					}
+				}
+			}
+
+			for (auto it = editor.nodeBegin(), itEnd = editor.nodeEnd(); it != itEnd; ++it) {
+				auto node = (*it);
+				draw_list->AddCircle(ImVec2(node->x, node->y), node_size, ImColor(node_color));
+				for (auto cit = node->child.begin(), citEnd = node->child.end(); cit != citEnd; ++cit){
+					auto ch = (*cit);
+					draw_list->AddLine(ImVec2(node->x, node->y), ImVec2(ch->x, ch->y), ImColor(edge_color));
+				}
+			}
+
+			if (fn) {
+				draw_list->AddCircleFilled(ImVec2(fn->x, fn->y), node_size, ImColor(node_color), 100);
+			}
+
+			if (wn && state != ONLY_NODE) {
+				draw_list->AddLine(ImVec2(wn->x, wn->y), mouse_pos, ImColor(edge_color));
+			}
+
 			ImGui::End();
 		}
 

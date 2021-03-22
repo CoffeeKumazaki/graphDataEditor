@@ -36,6 +36,8 @@ add_library(imgui STATIC
 ## Define the executable
 set(SRCS 
   src/main.cpp
+  src/editor.cpp
+  src/menu_widget.cpp
 )
 add_executable(${PROJECT_NAME} ${SRCS})
 target_include_directories(${PROJECT_NAME} PUBLIC
