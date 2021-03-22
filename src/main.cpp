@@ -52,16 +52,23 @@ int main(int argc, char const *argv[]) {
 			window_flags |= ImGuiWindowFlags_NoBackground;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 			ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
-			ImGui::SetNextWindowSize(ImVec2(h/4, 720), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(w/4, 720), ImGuiCond_FirstUseEver);
 
 			ImGui::Begin("menu", nullptr, window_flags);
 			ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
 			ImGui::Text("Configuration");
 
-			ImGui::SliderFloat("Node size", &node_size, 1.0f, 10.0f);
+			ImGui::SliderFloat("Node size", &node_size, 5.0f, 15.0f);
 			for (size_t i = 0; i < STATE_NUM; i++) {
 				chstate |= ImGui::RadioButton(state_char[i].c_str(), &state, i);
+			}
+
+			if (ImGui::Button("Output")) {
+
+			}
+			if (ImGui::Button("Reset")) {
+				editor.init();
 			}
 
 			ImGui::End();
@@ -82,10 +89,12 @@ int main(int argc, char const *argv[]) {
 			window_flags |= ImGuiWindowFlags_NoResize;
 			window_flags |= ImGuiWindowFlags_NoTitleBar;
 			window_flags |= ImGuiWindowFlags_NoCollapse;
-			window_flags |= ImGuiWindowFlags_NoBackground;
+			// window_flags |= ImGuiWindowFlags_NoBackground;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-			ImGui::SetNextWindowPos(ImVec2(h/4, 0), ImGuiCond_Always);
-			ImGui::SetNextWindowSize(ImVec2(3.0*h/4, 720), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowPos(ImVec2(w/4, 0), ImGuiCond_Always);
+			ImGui::SetNextWindowSize(ImVec2(3.0*w/4, 720), ImGuiCond_FirstUseEver);
+
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(82.0f/255.0f, 78.0f/255.0f, 77.0f/255.0f, 1.0f)); // Set window background to red
 
 			ImGui::Begin("main", nullptr, window_flags);
 			ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -151,6 +160,7 @@ int main(int argc, char const *argv[]) {
 				draw_list->AddLine(ImVec2(wn->x, wn->y), mouse_pos, ImColor(edge_color));
 			}
 
+			ImGui::PopStyleColor();
 			ImGui::End();
 		}
 
