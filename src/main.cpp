@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
 			}
 
 			if (ImGui::Button("Output")) {
-
+				editor.output();
 			}
 			if (ImGui::Button("Reset")) {
 				editor.init();

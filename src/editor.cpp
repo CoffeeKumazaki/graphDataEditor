@@ -13,7 +13,6 @@ GraphDataEditor::~GraphDataEditor() {
 void GraphDataEditor::init() {
 
   nodes.clear();
-  edges.clear();
 }
 
 void GraphDataEditor::addNode(NODE_PRT pn) {
@@ -38,13 +37,6 @@ void GraphDataEditor::delNode(NODE_PRT pn) {
 }
 
 
-void GraphDataEditor::addEdge(EDGE_PRT pe) {
-
-  if (pe && find(edges.begin(), edges.end(), pe) == edges.end()) {
-    edges.push_back(pe);
-  }
-}
-
 NODE_PRT GraphDataEditor::getHoverNode(double x, double y, double r) {
 
   for (auto it = nodes.begin(), itEnd = nodes.end(); it != itEnd; ++it) {
@@ -57,4 +49,31 @@ NODE_PRT GraphDataEditor::getHoverNode(double x, double y, double r) {
   }
 
   return NULL;
+}
+
+void GraphDataEditor::output() {
+
+  std::string outfile = "test.txt";
+  std::ofstream of(outfile);
+
+  int nCnt = 0;
+  int nEdge = 0;
+  of << nodes.size() << "\n";
+  for (auto it = nodes.begin(), itEnd = nodes.end(); it != itEnd; ++it, nCnt++)
+  {
+    auto n = (*it);
+    n->id = nCnt;
+    of << nCnt << "," << n->x << "," << n->y << "\n";
+    nEdge += n->child.size();
+  }
+
+  of << nEdge << "\n";
+  nCnt = 0;
+  for (auto it = nodes.begin(), itEnd = nodes.end(); it != itEnd; ++it) {
+    auto n = (*it);
+    for (auto cit = n->child.begin(), citEnd = n->child.end(); cit != citEnd; ++cit, nCnt++) {
+      auto c = (*cit);
+      of << nCnt << "," << n->id << "," << c->id << "\n";
+    }
+  }
 }
