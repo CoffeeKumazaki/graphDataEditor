@@ -59,8 +59,7 @@ void GraphDataEditor::output() {
   int nCnt = 0;
   int nEdge = 0;
   of << nodes.size() << "\n";
-  for (auto it = nodes.begin(), itEnd = nodes.end(); it != itEnd; ++it, nCnt++)
-  {
+  for (auto it = nodes.begin(), itEnd = nodes.end(); it != itEnd; ++it, nCnt++) {
     auto n = (*it);
     n->id = nCnt;
     of << nCnt << "," << n->x << "," << n->y << "\n";

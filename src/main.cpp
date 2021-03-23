@@ -1,5 +1,6 @@
 #include <stdafx.hpp>
 #include "imgui_helper.hpp"
+#include "load_image.hpp"
 #include "struct.hpp"
 #include "menu_widget.hpp"
 #include "editor.hpp"
@@ -18,11 +19,15 @@ int main(int argc, char const *argv[]) {
 	NODE_PRT fn; 	// focus node
 
 	// Our state
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(89.0f/255.0, 88.0f/255.0, 87.0f/255.0, 1.00f);
 	ImVec4 node_color = ImVec4(230.0/255.0, 180.0/255.0f, 34.0f/255.0, 1.00f);
 	ImVec4 edge_color = ImVec4(255.0/255.0, 255.0/255.0f, 255.0f/255.0, 1.00f);
+
+	int my_image_width = 0;
+	int my_image_height = 0;
+	GLuint my_image_texture = 0;
+	bool ret = LoadTextureFromFile("../data/disney.jpg", &my_image_texture, &my_image_width, &my_image_height);
+	IM_ASSERT(ret);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -101,7 +106,7 @@ int main(int argc, char const *argv[]) {
 
 			ImGui::Text("Node Num: %d", editor.numNode());
 
-
+			ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(3.0*w/4, h));
 			if (state == NOTHING) {
 			}
 			else {
