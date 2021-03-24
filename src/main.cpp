@@ -8,6 +8,11 @@
 
 int main(int argc, char const *argv[]) {
 
+	std::string img_path;
+	if (argc > 1) {
+		img_path = argv[1];
+	}
+
 	int w = 1280;
 	int h = 720;
 	std::string title = "Graph Data Editor";
@@ -26,8 +31,9 @@ int main(int argc, char const *argv[]) {
 	int my_image_width = 0;
 	int my_image_height = 0;
 	GLuint my_image_texture = 0;
-	bool ret = LoadTextureFromFile("../data/disney.jpg", &my_image_texture, &my_image_width, &my_image_height);
-	IM_ASSERT(ret);
+	if (!img_path.empty()) {
+		bool ret = LoadTextureFromFile(img_path.c_str(), &my_image_texture, &my_image_width, &my_image_height);
+	}
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -106,7 +112,9 @@ int main(int argc, char const *argv[]) {
 
 			ImGui::Text("Node Num: %d", editor.numNode());
 
-			ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(3.0*w/4, h));
+			if (my_image_texture)
+				ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(3.0*w/4, h));
+	
 			if (state == NOTHING) {
 			}
 			else {
