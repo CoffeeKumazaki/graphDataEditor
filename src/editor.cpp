@@ -1,4 +1,5 @@
 #include <stdafx.hpp>
+#include <iomanip>
 #include "struct.hpp"
 #include "editor.hpp"
 
@@ -53,7 +54,19 @@ NODE_PRT GraphDataEditor::getHoverNode(double x, double y, double r) {
 
 void GraphDataEditor::output() {
 
-  std::string outfile = "test.txt";
+  time_t now = time(NULL);
+  struct tm *pnow = localtime(&now);
+
+  std::stringstream s;
+  s << "20" << pnow->tm_year - 100;
+  s << std::setw(2) << std::setfill('0') << pnow->tm_mon + 1;
+  s << std::setw(2) << std::setfill('0') << pnow->tm_mday;
+  s << "_";
+  s << std::setw(2) << std::setfill('0') << pnow->tm_hour;
+  s << std::setw(2) << std::setfill('0') << pnow->tm_min;
+  s << std::setw(2) << std::setfill('0') << pnow->tm_sec;
+
+  std::string outfile = s.str() + ".nod";
   std::ofstream of(outfile);
 
   int nCnt = 0;

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <unistd.h>
 
@@ -10,6 +11,7 @@
 #include <list>
 #include <map>
 #include <stack>
+#include <string>
 
 #include <algorithm>
 #include <math.h>
