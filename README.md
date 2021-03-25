@@ -1,10 +1,11 @@
-# cpp_gui_template
+# Graph Data Editor
 
-## build & run demo
+## build & run
 
 ```
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
+$ ./graphDataEditor [img_file]
 ```
