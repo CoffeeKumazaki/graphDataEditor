@@ -11,3 +11,6 @@ $ ./graphDataEditor [img_file]
 ```
 
 ![screen shot](doc/ss.png)
+
+Images can be set as a base.
+![screen shot](doc/ss_img.png)
