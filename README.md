@@ -9,3 +9,5 @@ $ cmake ..
 $ make
 $ ./graphDataEditor [img_file]
 ```
+
+![screen shot](doc/ss.png)
